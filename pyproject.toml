@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "podium-ia-poc-llm-evaluate"
+version = "0.1.0"
+description = ""
+authors = ["dhelfxpanse <156714483+dhelfxpanse@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+podium-ia-poc-streamlit = {git = "git@github.com:Xpanse-AI/podium-ia-poc-streamlit.git", rev = "main"}
+loguru = "^0.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
