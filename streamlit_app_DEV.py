@@ -1,11 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-# Uncomment and implement these sections to connect to the respective APIs
-# from openai import ChatCompletion
-# from claude import ClaudeCompletion
-# from mistral import MistralCompletion
-
 # Define the rubric for scoring
 rubric = {
     1: "The model fails to understand the context of user inputs and provides responses that are irrelevant or inappropriate.",
