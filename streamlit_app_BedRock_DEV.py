@@ -11,6 +11,25 @@ rubric = {
     5: "The model excels in understanding the context and consistently provides highly relevant, detailed, and accurate responses."
 }
 
+# Map the model name to the correct model ID and Content-Type
+model_id_mapping = {
+    "Anthropic Claude 1": {"model_id": "anthropic.claude-v1", "content_type": "text/plain"},
+    "Anthropic Claude 2": {"model_id": "anthropic.claude-v2", "content_type": "text/plain"},
+    "Anthropic Claude 3.0": {"model_id": "anthropic.claude-v3.0", "content_type": "text/plain"},
+    "Anthropic Claude 3.5": {"model_id": "anthropic.claude-v3.5", "content_type": "text/plain"},
+    "Anthropic Claude 3.5 Instant": {"model_id": "anthropic.claude-v3.5-instant", "content_type": "text/plain"},
+    "Cohere Command R 3.0": {"model_id": "cohere.command-r-v3.0", "content_type": "text/plain"},
+    "Cohere Command 3.0": {"model_id": "cohere.command-v3.0", "content_type": "text/plain"},
+    "Cohere Command Lite": {"model_id": "cohere.command-lite", "content_type": "text/plain"},
+    "Meta LLaMA 2 7B Chat": {"model_id": "meta.llama2-7b-chat", "content_type": "text/plain"},
+    "Meta LLaMA 2 13B Chat": {"model_id": "meta.llama2-13b-chat", "content_type": "text/plain"},
+    "Meta LLaMA 2 70B Chat": {"model_id": "meta.llama2-70b-chat", "content_type": "text/plain"},
+    "Amazon Titan Text LLM": {"model_id": "amazon.titan-text-llm", "content_type": "text/plain"},
+    "Amazon Titan 3B Chat": {"model_id": "amazon.titan-tg1-large", "content_type": "application/json"},
+    "Amazon Titan 1.5B Text": {"model_id": "amazon.titan-tg1-medium", "content_type": "text/plain"},
+    "Amazon Titan 1.3B Text": {"model_id": "amazon.titan-tg1-small", "content_type": "text/plain"},
+}
+
 def load_csv(file):
     return pd.read_csv(file)
 
@@ -18,18 +37,25 @@ def get_bedrock_client():
     # Initialize the AWS BedRock client
     return boto3.client('bedrock-runtime')
 
-def query_model(client, model_id, input_text):
+def query_model(client, model_name, input_text):
+    model_info = model_id_mapping.get(model_name)
+    if model_info is None:
+        raise ValueError(f"Invalid model name: {model_name}")
+
+    model_id = model_info["model_id"]
+    content_type = model_info["content_type"]
+
     # Query the BedRock model with the input text
     response = client.invoke_model(
         modelId=model_id,
         body=input_text.encode('utf-8'),
-        contentType='text/plain'
+        contentType=content_type
     )
     return response['body'].read().decode('utf-8')
 
-def evaluate_answer(evaluator_model, question, candidate_answer):
+def evaluate_answer(client, evaluator_model, question, candidate_answer):
     # Evaluate the answer using the evaluator model and the provided rubric
-    evaluation = query_model(evaluator_model, f"Evaluate the following Q&A based on a scale of 1 to 5.\nQuestion: {question}\nAnswer: {candidate_answer}\nEvaluation Criteria: {rubric}")
+    evaluation = query_model(client, evaluator_model, f"Evaluate the following Q&A based on a scale of 1 to 5.\nQuestion: {question}\nAnswer: {candidate_answer}\nEvaluation Criteria: {rubric}")
     score = int(evaluation.strip())  # Assume the response is just a number
     justification = f"The Evaluator gave a score of {score} because {rubric[score].lower()}"
     return score, justification
@@ -49,11 +75,10 @@ def main():
         st.dataframe(df)
 
         client = get_bedrock_client()
-
+        
         # Select the Candidate and Evaluator models
-        candidate_model = st.selectbox("Select Candidate Model", ["anthropic.claude-v2:1", "amazon.titan-text-express-v1"])
-        evaluator_model = st.selectbox("Select Evaluator Model", ["anthropic.claude-v2:1", "amazon.titan-text-express-v1"])
-
+        candidate_model = st.selectbox("Select Candidate Model", list(model_id_mapping.keys()))
+        evaluator_model = st.selectbox("Select Evaluator Model", list(model_id_mapping.keys()))
 
         if st.button("Generate Answers and Evaluate"):
             answers = []
@@ -66,7 +91,7 @@ def main():
                 answers.append(candidate_answer)
 
                 # Evaluate the answer using the Evaluator model
-                score, justification = evaluate_answer(client, question, candidate_answer)
+                score, justification = evaluate_answer(client, evaluator_model, question, candidate_answer)
                 ratings.append(score)
                 justifications.append(justification)
 
