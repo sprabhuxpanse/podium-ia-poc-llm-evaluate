@@ -43,7 +43,7 @@ def config_llm_bedrock():
     }  
 
     # AWS BedRock Model IDs: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
-    model_id="amazon.titan-text-express-v1" 
+    #model_id="amazon.titan-text-express-v1" 
     #model_id = "anthropic.claude-v2:1"
     #model_id="anthropic.claude-3-sonnet-20240229-v1:0" # BedRockChat
     #model_id="cohere.command-r-v1:0"
@@ -52,7 +52,7 @@ def config_llm_bedrock():
     #model_id="meta.llama3-70b-instruct-v1:0"
     #model_id="mistral.mistral-7b-instruct-v0:2"
     #model_id="mistral.mixtral-8x7b-instruct-v0:1"
-    #model_id="mistral.mistral-large-2402-v1:0"
+    model_id="mistral.mistral-large-2402-v1:0"
     #model_id="stability.stable-diffusion-xl-v1"
 
     #llm = BedrockChat(model_id=model_id, client=client) # OLD

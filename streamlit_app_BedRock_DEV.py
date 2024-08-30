@@ -24,7 +24,7 @@ def query_model(client, model_info, question):
         
         return response['body'].read().decode('utf-8')
     except Exception as e:
-        return f"Error invoking model: {str(e)}"  # Error handling to catch and display exceptions
+        return f"Error invoking model: {str(e)}"  # Capture and return errors
 
 def main():
     st.title("AWS Bedrock LLM Evaluator")
@@ -37,24 +37,15 @@ def main():
         st.dataframe(df)
 
         model_id_mapping = {
-            "Anthropic Claude 1": {"model_id": "anthropic.claude-v1", "content_type": "text/plain"},
-            "Anthropic Claude 2": {"model_id": "anthropic.claude-v2", "content_type": "application/json"},
-            "Anthropic Claude 3.0": {"model_id": "anthropic.claude-v3.0", "content_type": "application/json"},
-            "Claude 3.5 Sonnet": {"model_id": "anthropic.claude-v3.5", "content_type": "application/json"},
-            "Mistral Large 2": {"model_id": "mistral.mistral-large-2407-v1:0", "content_type": "application/json"},
-            "Cohere Command R 3.0": {"model_id": "cohere.command-r-v3.0", "content_type": "text/plain"},
-            "Cohere Command 3.0": {"model_id": "cohere.command-v3.0", "content_type": "text/plain"},
-            "Cohere Command Lite": {"model_id": "cohere.command-lite", "content_type": "text/plain"},
-            "Meta LLaMA 2 7B Chat": {"model_id": "meta.llama2-7b-chat", "content_type": "text/plain"},
-            "Meta LLaMA 2 13B Chat": {"model_id": "meta.llama2-13b-chat", "content_type": "text/plain"},
-            "Meta LLaMA 2 70B Chat": {"model_id": "meta.llama2-70b-chat", "content_type": "text/plain"},
-            "Amazon Titan Text LLM": {"model_id": "amazon.titan-text-llm", "content_type": "text/plain"},
-            "Amazon Titan 3B Chat": {"model_id": "amazon.titan-tg1-large", "content_type": "application/json"},
-            "Amazon Titan 1.5B Text": {"model_id": "amazon.titan-tg1-medium", "content_type": "text/plain"},
-            "Amazon Titan 1.3B Text": {"model_id": "amazon.titan-tg1-small", "content_type": "text/plain"},
+            #"Anthropic Claude 1": {"model_id": "anthropic.claude-v1", "content_type": "text/plain"},
+            #"Anthropic Claude 2": {"model_id": "anthropic.claude-v2", "content_type": "application/json"},
+            #"Anthropic Claude 3.0": {"model_id": "anthropic.claude-v3.0", "content_type": "application/json"},
+            "Claude 3.5 Sonnet": {"model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0", "content_type": "application/json"},
+            "Mistral Large 2 (24.07)": {"model_id": "mistral.mistral-large-2407-v1:0", "content_type": "application/json"},
+            "Mistral Large": {"model_id": "mistral.mistral-large-2402-v1:0", "content_type": "application/json"},
         }
 
-        candidate_model = st.selectbox("Select Candidate Model", list(model_id_mapping.keys()), index=list(model_id_mapping.keys()).index("Mistral Large 2"))
+        candidate_model = st.selectbox("Select Candidate Model", list(model_id_mapping.keys()), index=list(model_id_mapping.keys()).index("Mistral Large 2 (24.07)"))
         evaluator_model = st.selectbox("Select Evaluator Model", list(model_id_mapping.keys()), index=list(model_id_mapping.keys()).index("Claude 3.5 Sonnet"))
 
         if st.button("Generate Answers and Evaluate"):
