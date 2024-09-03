@@ -2,20 +2,45 @@ import streamlit as st
 import pandas as pd
 import boto3
 import json
+from loguru import logger
 
 def get_bedrock_client():
     return boto3.client(service_name='bedrock-runtime', region_name='us-east-1')  # Adjust region as necessary
 
 def query_model(client, model_id, question):
     try:
+        if model_id == "mistral.mistral-large-2407-v1:0":
+            formatted_prompt = f"Human: {question}\nAssistant:"
+            client = boto3.client('bedrock-runtime', 'us-west-2')
+            max_tokens = 4096
+            temperature = 0.
+            native_request = {
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [
+                {"role": "user", "content": formatted_prompt}
+            ]}
         # Format the prompt according to the model's requirements
-        formatted_prompt = f"Human: {question}\nAssistant:"
-        response = client.invoke_model(
-            modelId=model_id,
-            contentType='application/json',
-            body=json.dumps({"prompt": formatted_prompt, "max_tokens_to_sample": 250}).encode('utf-8')
-        )
-        response_text = response['Body'].read().decode('utf-8')
+        else:
+            formatted_prompt = f"Human: {question}\nAssistant:"
+            max_tokens = 4096
+            temperature = 0.
+            native_request = {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [
+                {"role": "user", "content": formatted_prompt}
+            ]
+        }   
+        request = json.dumps(native_request)
+        response = client.invoke_model(modelId=model_id, body=request)
+        model_response = json.loads(response["body"].read().decode('utf-8'))
+        if model_id == "mistral.mistral-large-2407-v1:0":
+            response_text = model_response['choices'][0]['message']['content']
+        else:
+            response_text = model_response['content'][0]['text']
+        
         return response_text
     except Exception as e:
         return f"Error invoking model: {str(e)}"

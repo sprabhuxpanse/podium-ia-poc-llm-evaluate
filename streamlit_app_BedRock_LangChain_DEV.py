@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from langchain.llms.bedrock import Bedrock
 from langchain_community.chat_models import BedrockChat
-
 def get_bedrock_client(model_id):
     print(f"Using model ID: {model_id}")  # Debugging line to confirm model ID
     if "claude" in model_id.lower():
@@ -40,7 +39,6 @@ def main():
         if st.button("Generate Answers and Evaluate"):
             candidate_bedrock_client = get_bedrock_client(model_id_mapping[candidate_model])
             evaluator_bedrock_client = get_bedrock_client(model_id_mapping[evaluator_model])
-
             df['Candidate Answer'] = df['Questions'].apply(lambda x: query_model(candidate_bedrock_client, x))
             df['Evaluator Rating'] = df.apply(lambda row: query_model(evaluator_bedrock_client, f"Evaluate the following answer on a scale of 1 to 5: {row['Candidate Answer']}"), axis=1)
             df['Evaluator Rating Justification'] = df.apply(lambda row: query_model(evaluator_bedrock_client, f"Provide justification for the rating of {row['Evaluator Rating']}"), axis=1)
