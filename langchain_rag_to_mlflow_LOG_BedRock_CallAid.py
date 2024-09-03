@@ -55,6 +55,10 @@ def config_llm_bedrock():
     model_id="mistral.mistral-large-2402-v1:0"
     #model_id="stability.stable-diffusion-xl-v1"
 
+    model_id="anthropic.claude-3-5-sonnet-20240620-v1:0" # USE for streamlit app
+    model_id="mistral.mistral-large-2407-v1:0" # USE for streamlit app
+    
+
     #llm = BedrockChat(model_id=model_id, client=client) # OLD
     llm = Bedrock(model_id=model_id, client=client) # NEW
 
